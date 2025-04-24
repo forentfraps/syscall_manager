@@ -41,14 +41,14 @@ pub const SyscallManager = struct {
         self: *Self,
         key: u32,
         numCallIdx: u32,
-    ) usize {
+    ) !usize {
         if (self._NtUserGetAsyncKeyStateSyscall == null) {
             return syscall_manager_error.SyscallMissing;
         }
-        return self._NtUserGetAsyncKeyStateSyscall(
-            @intCast(key),
-            @intCast(numCallIdx),
-        );
+        return self._NtUserGetAsyncKeyStateSyscall.?.call(.{
+            @as(usize, @intCast(key)),
+            @as(usize, @intCast(numCallIdx)),
+        });
     }
 
     pub fn NtWriteFile(
