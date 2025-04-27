@@ -3,7 +3,7 @@ const syscall_lib = @import("syscall_wrapper.zig");
 const winc = @import("Windows.h.zig");
 const win = std.os.windows;
 
-pub const syscall = syscall_lib.syscall;
+pub const Syscall = syscall_lib.syscall;
 const W = std.unicode.utf8ToUtf16LeStringLiteral;
 
 const syscall_manager_error = error{
@@ -11,29 +11,29 @@ const syscall_manager_error = error{
 };
 
 pub const SyscallManager = struct {
-    _NtVirtualProtectMemorySyscall: ?syscall = null,
-    _NtVirtualAllocateMemorySyscall: ?syscall = null,
-    _NtOpenProcessSyscall: ?syscall = null,
-    _NtWriteFileSyscall: ?syscall = null,
-    _NtUserGetAsyncKeyStateSyscall: ?syscall = null,
+    _NtVirtualProtectMemorySyscall: ?Syscall = null,
+    _NtVirtualAllocateMemorySyscall: ?Syscall = null,
+    _NtOpenProcessSyscall: ?Syscall = null,
+    _NtWriteFileSyscall: ?Syscall = null,
+    _NtUserGetAsyncKeyStateSyscall: ?Syscall = null,
 
     const Self = @This();
 
-    pub fn addNTVPM(self: *Self, _syscall: syscall) void {
+    pub fn addNTVPM(self: *Self, _syscall: Syscall) void {
         self._NtVirtualProtectMemorySyscall = _syscall;
         return;
     }
 
-    pub fn addNOP(self: *Self, _syscall: syscall) void {
+    pub fn addNOP(self: *Self, _syscall: Syscall) void {
         self._NtOpenProcessSyscall = _syscall;
         return;
     }
 
-    pub fn addNWF(self: *Self, _syscall: syscall) void {
+    pub fn addNWF(self: *Self, _syscall: Syscall) void {
         self._NtWriteFileSyscall = _syscall;
     }
 
-    pub fn addNTUGAKS(self: *Self, _syscall: syscall) void {
+    pub fn addNTUGAKS(self: *Self, _syscall: Syscall) void {
         self._NtUserGetAsyncKeyStateSyscall = _syscall;
     }
 
