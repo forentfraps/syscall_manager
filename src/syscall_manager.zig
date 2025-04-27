@@ -3,7 +3,7 @@ const syscall_lib = @import("syscall_wrapper.zig");
 const winc = @import("Windows.h.zig");
 const win = std.os.windows;
 
-pub const Syscall = syscall_lib.syscall;
+pub const Syscall = syscall_lib.Syscall;
 const W = std.unicode.utf8ToUtf16LeStringLiteral;
 
 const syscall_manager_error = error{

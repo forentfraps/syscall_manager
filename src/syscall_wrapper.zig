@@ -4,7 +4,7 @@ extern fn syscall_wrapper(syscall_number: u32, argcount: usize, args: [*]usize) 
 
 pub const syscallError = error{BadFunction};
 
-pub const syscall = struct {
+pub const Syscall = struct {
     syscall_number: u16,
 
     const Self = @This();
@@ -13,7 +13,7 @@ pub const syscall = struct {
         return .{ .syscall_number = syscall_number };
     }
 
-    pub fn call(self: *syscall, args: anytype) usize {
+    pub fn call(self: *Syscall, args: anytype) usize {
         // Use comptime reflection to build an array of argument values.
         const fields = std.meta.fields(@TypeOf(args));
         const arg_count = fields.len;
@@ -39,7 +39,7 @@ pub const syscall = struct {
         const syscall_number_ptr: *u16 = @alignCast(@ptrCast(func_ptr[4..]));
         const syscall_number: u16 = syscall_number_ptr.*;
 
-        return syscall.init(syscall_number);
+        return Syscall.init(syscall_number);
     }
 };
 pub fn set_registers(arg1: u64, arg2: u64) void {
