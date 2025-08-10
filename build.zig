@@ -29,4 +29,13 @@ pub fn build(b: *std.Build) void {
 
     const asm_step = b.step("asm", "Assemble syscall_wrapper.asm with nasm");
     asm_step.dependOn(&nasm.step);
+
+    const lib_unit_tests = b.addTest(.{
+        .root_module = lib_mod,
+    });
+
+    const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);
+    const test_step = b.step("test", "Run unit tests");
+    test_step.dependOn(&nasm.step);
+    test_step.dependOn(&run_lib_unit_tests.step);
 }
