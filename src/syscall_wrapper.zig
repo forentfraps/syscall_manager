@@ -62,10 +62,10 @@ pub const Syscall = struct {
     pub fn fetch(func_ptr: [*]u8) !Self {
         // 4C 8B D1 B8 ?? ??
         const magic: u32 = 0xB8D18B4C;
-        const magic_ptr: *u32 = @alignCast(@ptrCast(func_ptr));
+        const magic_ptr: *u32 = @ptrCast(@alignCast(func_ptr));
         if (magic_ptr.* != magic) return syscallError.BadFunction;
 
-        const syscall_number_ptr: *u16 = @alignCast(@ptrCast(func_ptr[4..]));
+        const syscall_number_ptr: *u16 = @ptrCast(@alignCast(func_ptr[4..]));
         const syscall_number: u16 = syscall_number_ptr.*;
         return Syscall.init(syscall_number);
     }
@@ -78,6 +78,6 @@ pub fn set_registers(arg1: u64, arg2: u64) void {
         :
         : [val1] "r" (arg1),
           [val2] "r" (arg2),
-        : "rcx", "rax"
+        : .{ .rcx = true, .rax = true }
     );
 }
