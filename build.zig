@@ -15,7 +15,7 @@ pub fn build(b: *std.Build) void {
     nasm.addArg("-o");
     const obj_lp = nasm.addOutputFileArg("syscall_wrapper.o");
     nasm.expectExitCode(0);
-    _ = nasm.captureStdOut();
+    _ = nasm.captureStdOut(.{});
 
     lib_mod.addObjectFile(obj_lp);
 
