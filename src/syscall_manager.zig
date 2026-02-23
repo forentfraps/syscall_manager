@@ -1,26 +1,26 @@
 const std = @import("std");
 const syscall_lib = @import("syscall_wrapper.zig");
 const winc = @import("Windows.h.zig");
-const win = std.os.windows;
+const win = @import("zigwin32").everything;
 
-pub extern "kernel32" fn CreateFileW(
-    lpFileName: [*:0]const win.WCHAR,
-    dwDesiredAccess: win.DWORD,
-    dwShareMode: win.DWORD,
-    lpSecurityAttributes: ?*win.SECURITY_ATTRIBUTES,
-    dwCreationDisposition: win.DWORD,
-    dwFlagsAndAttributes: win.DWORD,
-    hTemplateFile: ?win.HANDLE,
-) callconv(.winapi) win.HANDLE;
-
-pub extern "kernel32" fn GetModuleHandleW(
-    lpModuleName: [*:0]const win.WCHAR,
-) callconv(.winapi) ?win.HMODULE;
-
-pub extern "kernel32" fn GetProcAddress(
-    module: win.HMODULE,
-    procName: [*:0]const u8,
-) callconv(.winapi) ?win.FARPROC;
+// pub extern "kernel32" fn CreateFileW(
+//     lpFileName: [*:0]const win.WCHAR,
+//     dwDesiredAccess: win.DWORD,
+//     dwShareMode: win.DWORD,
+//     lpSecurityAttributes: ?*win.SECURITY_ATTRIBUTES,
+//     dwCreationDisposition: win.DWORD,
+//     dwFlagsAndAttributes: win.DWORD,
+//     hTemplateFile: ?win.HANDLE,
+// ) callconv(.winapi) win.HANDLE;
+//
+// pub extern "kernel32" fn GetModuleHandleW(
+//     lpModuleName: [*:0]const win.WCHAR,
+// ) callconv(.winapi) ?win.HMODULE;
+//
+// pub extern "kernel32" fn GetProcAddress(
+//     module: win.HMODULE,
+//     procName: [*:0]const u8,
+// ) callconv(.winapi) ?win.FARPROC;
 
 const GENERIC_WRITE: u32 = 0x40000000;
 const FILE_SHARE_READ: u32 = 0x00000001;
@@ -212,14 +212,14 @@ const W = std.unicode.utf8ToUtf16LeStringLiteral;
 
 // Helpers
 fn getNtdllProc(name: [*:0]const u8) [*]u8 {
-    const ntdll = GetModuleHandleW(W("ntdll.dll")).?;
-    const p = GetProcAddress(ntdll, name) orelse
+    const ntdll = win.GetModuleHandleW(W("ntdll.dll")).?;
+    const p = win.GetProcAddress(ntdll, name) orelse
         @panic("GetProcAddress failed");
     return @ptrCast(p);
 }
 
 fn openNulWrite() win.HANDLE {
-    const h = CreateFileW(
+    const h = win.CreateFileW(
         W("NUL"),
         GENERIC_WRITE,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
