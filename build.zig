@@ -12,8 +12,8 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    const zigwin32 = b.dependency("zigwin32", .{});
 
+    const zigwin32 = b.dependency("zigwin32", .{});
     mod.addImport("zigwin32", zigwin32.module("win32"));
 
     const nasm = b.addSystemCommand(&.{ "nasm", "-f", "win64" });

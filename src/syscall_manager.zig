@@ -162,7 +162,7 @@ pub const SyscallManager = struct {
     }
 
     /// Convenience: derive the Syscall by parsing the stub bytes and register it.
-    pub fn addFromStub(self: *Self, comptime which: SysId, stub: [*]u8) !void {
+    pub fn addFromStub(self: *Self, comptime which: SysId, stub: [*]const u8) !void {
         const sc = try Syscall.fetch(stub);
         self.add(which, sc);
     }
