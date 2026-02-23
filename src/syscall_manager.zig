@@ -192,7 +192,10 @@ pub const SyscallManager = struct {
         // so comptime literals and string literals are accepted.
         var norm: Expect = undefined;
         inline for (expect_fields, 0..) |ef, i| {
-            @field(norm, ef.name) = coerceParam(ef.type, @field(args, got_fields[i].name));
+            @field(norm, ef.name) = coerceParam(
+                ef.type,
+                @field(args, got_fields[i].name),
+            );
         }
 
         const sc = self.slots[idxOf(which)] orelse return syscall_manager_error.SyscallMissing;
@@ -211,7 +214,7 @@ const W = std.unicode.utf8ToUtf16LeStringLiteral;
 // const syscall_manager_error = manager_mod.syscall_manager_error;
 
 // Helpers
-fn getNtdllProc(name: [*:0]const u8) [*]u8 {
+fn getNtdllProc(name: [*:0]const u8) [*]const u8 {
     const ntdll = win.GetModuleHandleW(W("ntdll.dll")).?;
     const p = win.GetProcAddress(ntdll, name) orelse
         @panic("GetProcAddress failed");
@@ -221,11 +224,11 @@ fn getNtdllProc(name: [*:0]const u8) [*]u8 {
 fn openNulWrite() win.HANDLE {
     const h = win.CreateFileW(
         W("NUL"),
-        GENERIC_WRITE,
-        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        .{ ._30 = 1 },
+        .{ .READ = 1, .WRITE = 1 },
         null,
-        OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL,
+        .OPEN_EXISTING,
+        .{ .FILE_ATTRIBUTE_NORMAL = 1 },
         null,
     );
 
@@ -263,9 +266,10 @@ test "invoke(.NtWriteFile) writes to NUL and returns STATUS_SUCCESS" {
 
     // Open NUL device for a harmless synchronous write
     const h = openNulWrite();
+    try std.testing.expect(h != win.INVALID_HANDLE_VALUE);
     // defer _ = win.kernel32.CloseHandle(h);
 
-    var iosb: win.IO_STATUS_BLOCK = undefined;
+    var iosb: win.IO_STATUS_BLOCK = std.mem.zeroes(win.IO_STATUS_BLOCK);
 
     const msg = "hello\n";
     const status = try mgr.invoke(.NtWriteFile, .{
