@@ -1,7 +1,6 @@
 const std = @import("std");
 const syscall_lib = @import("syscall_wrapper.zig");
-const winc = @import("Windows.h.zig");
-const win = @import("zigwin32").everything;
+const win = @import("zigwin32");
 
 // pub extern "kernel32" fn CreateFileW(
 //     lpFileName: [*:0]const win.WCHAR,
@@ -87,7 +86,7 @@ const SPECS = .{
             Event: usize,
             ApcRoutive: usize,
             ApcContext: usize,
-            IoStatusBlock: *win.IO_STATUS_BLOCK,
+            IoStatusBlock: *win.system.windows_programming.IO_STATUS_BLOCK,
             Buffer: [*]const u8,
             Length: usize,
             ByteOffset: usize,
@@ -215,14 +214,14 @@ const W = std.unicode.utf8ToUtf16LeStringLiteral;
 
 // Helpers
 fn getNtdllProc(name: [*:0]const u8) [*]const u8 {
-    const ntdll = win.GetModuleHandleW(W("ntdll.dll")).?;
-    const p = win.GetProcAddress(ntdll, name) orelse
+    const ntdll = win.system.library_loader.GetModuleHandleW(W("ntdll.dll")).?;
+    const p = win.system.library_loader.GetProcAddress(ntdll, name) orelse
         @panic("GetProcAddress failed");
     return @ptrCast(p);
 }
 
-fn openNulWrite() win.HANDLE {
-    const h = win.CreateFileW(
+fn openNulWrite() win.foundation.HANDLE {
+    const h = win.storage.file_system.CreateFileW(
         W("NUL"),
         .{ ._30 = 1 },
         .{ .READ = 1, .WRITE = 1 },
@@ -236,7 +235,7 @@ fn openNulWrite() win.HANDLE {
     switch (@typeInfo(@TypeOf(h))) {
         .optional => return h orelse @panic("CreateFileW(NUL) failed"),
         else => {
-            if (h == win.INVALID_HANDLE_VALUE) @panic("CreateFileW(NUL) failed");
+            if (h == win.foundation.INVALID_HANDLE_VALUE) @panic("CreateFileW(NUL) failed");
             return h;
         },
     }
@@ -266,10 +265,12 @@ test "invoke(.NtWriteFile) writes to NUL and returns STATUS_SUCCESS" {
 
     // Open NUL device for a harmless synchronous write
     const h = openNulWrite();
-    try std.testing.expect(h != win.INVALID_HANDLE_VALUE);
+    try std.testing.expect(h != win.foundation.INVALID_HANDLE_VALUE);
     // defer _ = win.kernel32.CloseHandle(h);
 
-    var iosb: win.IO_STATUS_BLOCK = std.mem.zeroes(win.IO_STATUS_BLOCK);
+    var iosb: win.system.windows_programming.IO_STATUS_BLOCK = std.mem.zeroes(
+        win.system.windows_programming.IO_STATUS_BLOCK,
+    );
 
     const msg = "hello\n";
     const status = try mgr.invoke(.NtWriteFile, .{
@@ -294,7 +295,7 @@ test "invoking a syscall that hasn't been registered returns SyscallMissing" {
 
     var mgr = SyscallManager.init();
 
-    var iosb: win.IO_STATUS_BLOCK = undefined;
+    var iosb: win.system.windows_programming.IO_STATUS_BLOCK = undefined;
     const msg = "x";
 
     // Nothing registered; call should error
