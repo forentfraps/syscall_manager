@@ -37,8 +37,8 @@
     // internet connectivity.
     .dependencies = .{
         .zigwin32 = .{
-            .url = "git+https://github.com/forentfraps/zigwin32#8d5ff24556250f0ecb16410e9c8af8be3933bc35",
-            .hash = "zigwin32-25.0.28-preview-lnxZzKw_5APSEKqgy0QKGNbwv0bDcYMOcyKB-WR-PE6S",
+            .url = "git+https://github.com/forentfraps/zigwin32.git#8c5763fe9e98e2ffd774b339ad38a5cc36f7d667",
+            .hash = "zigwin32-25.0.28-preview-lnxZzElA5AP4vKjhWkvhnFIk0q_27QDGeAuF0B9Mrq3_",
         },
     },
     .paths = .{
