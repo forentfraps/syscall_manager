@@ -2,11 +2,8 @@ const std = @import("std");
 
 pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
-    const target = b.resolveTargetQuery(.{
-        .os_tag = .windows,
-        .cpu_arch = .x86_64,
-    });
-    _ = b.standardTargetOptions(.{});
+
+    const target = b.standardTargetOptions(.{});
 
     const mod = b.addModule("syscall_manager", .{
         .root_source_file = b.path("src/syscall_manager.zig"),
