@@ -6,6 +6,7 @@ pub fn build(b: *std.Build) void {
         .os_tag = .windows,
         .cpu_arch = .x86_64,
     });
+    _ = b.standardTargetOptions(.{});
 
     const mod = b.addModule("syscall_manager", .{
         .root_source_file = b.path("src/syscall_manager.zig"),
@@ -13,7 +14,10 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    const zigwin32 = b.dependency("zigwin32", .{});
+    const zigwin32 = b.dependency("zigwin32", .{
+        .optimize = optimize,
+        .target = target,
+    });
     mod.addImport("zigwin32", zigwin32.module("win32"));
 
     const nasm = b.addSystemCommand(&.{ "nasm", "-f", "win64" });
